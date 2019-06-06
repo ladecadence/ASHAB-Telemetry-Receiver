@@ -1,3 +1,5 @@
+#define SERIAL_RX_BUFFER_SIZE 255
+
 #include "Arduino.h"
 #define U8G2_USE_LARGE_FONTS
 #include <U8g2lib.h>
@@ -12,9 +14,9 @@
 #define LED		25
 
 // OLED
-#define OLED_CLK 	15
+#define OLED_CLK 	5 // 15
 #define OLED_DAT 	4
-#define OLED_RST 	16
+#define OLED_RST 	23 // 16
 
 // LoRa
 #define LORA_SS		18
@@ -61,10 +63,12 @@ void setup()
 	u8g2.setFont(FONT_7t);
 	u8g2.drawStr(2, LINE8_0,"ASHAB Receiver");
 	u8g2.drawStr(2, LINE8_3,"Last RSSI:");
+	u8g2.drawStr(2, LINE8_5,"Last Len:");
 	u8g2.sendBuffer();
 
 	// Serial port 
 	DEBUG_SERIAL.begin(115200);
+	//DEBUG_SERIAL.buffer(255);
 
 	// Init LoRa
 	if (!rf95.init())
@@ -107,6 +111,10 @@ void loop()
 			u8g2.drawStr(2, LINE8_4, "           ");
 			u8g2.setCursor(2, LINE8_4);
 			u8g2.print(rf95.lastRssi());
+			// show len
+			u8g2.drawStr(2, LINE8_6, "           ");
+			u8g2.setCursor(2, LINE8_6);
+			u8g2.print(len);
 			u8g2.sendBuffer();
 
 		}
