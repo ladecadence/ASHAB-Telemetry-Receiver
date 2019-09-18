@@ -9,18 +9,21 @@
 
 #define DEBUG_SERIAL Serial
 
-#define PKT_LEN		255
+#define LORA_LEN    255
+#define SERIAL_LEN	LORA_LEN + 8 // 255 max LoRa PKT + start + end
 
 #define LED		25
 
 // OLED
-#define OLED_CLK 	5 // 15
+// Depending on boards can be CLK 5 or 15 and RST 23 or 16
+#define OLED_CLK 	15
 #define OLED_DAT 	4
-#define OLED_RST 	23 // 16
+#define OLED_RST 	16
 
 // LoRa
 #define LORA_SS		18
 #define LORA_INT	26
+#define LORA_FREQ   868.7
 
 // INTERFACE
 #define LINE8_0	8+1
@@ -39,8 +42,14 @@
 U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ OLED_CLK, /* data=*/ OLED_DAT, /* reset=*/ OLED_RST);
 RH_RF95 rf95(LORA_SS, LORA_INT);
 
-// receive buffer
-uint8_t buf[PKT_LEN];
+// variables
+uint8_t pkt_start[4] = {0xAA, 0x55, 0xAA, 0x55};
+uint8_t pkt_end[4] = {0x33, 0xCC, 0x33, 0xCC};
+
+// lora receive buffer
+uint8_t lora_buf[LORA_LEN];
+// Serial buffer
+uint8_t serial_buf[SERIAL_LEN];
 
 void setup()
 {
@@ -85,9 +94,10 @@ void setup()
 	}
 
 	// receiver, low power	
-	rf95.setFrequency(868.5);
+	rf95.setFrequency(LORA_FREQ);
 	rf95.setTxPower(5,false);
-	memset(buf, 0, sizeof(buf));
+	memset(lora_buf, 0, sizeof(lora_buf));
+	memset(serial_buf, 0, sizeof(serial_buf));
 
 }
 
@@ -96,16 +106,22 @@ void loop()
 	if (rf95.available())
 	{
 		// Should be a message for us now   
-		uint8_t len = sizeof(buf);
-		if (rf95.recv(buf, &len))
+		uint8_t len = sizeof(lora_buf);
+		if (rf95.recv(lora_buf, &len))
 		{
 			// packet received
 			digitalWrite(LED, HIGH);
+
+			// create serial packet
+			memcpy(serial_buf, pkt_start, 4);
+			memcpy(serial_buf+4, lora_buf, len);
+			memcpy(serial_buf+4+len, pkt_end, 4);
+
 			// send it through serial port
-			DEBUG_SERIAL.write(buf, len);
+			DEBUG_SERIAL.write(serial_buf, len+8);
 			digitalWrite(LED, LOW);
 			// clear buffer
-			memset(buf, 0, sizeof(buf));
+			memset(serial_buf, 0, sizeof(serial_buf));
 
 			// show RSSI
 			u8g2.drawStr(2, LINE8_4, "           ");
