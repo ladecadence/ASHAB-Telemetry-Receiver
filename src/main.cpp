@@ -112,7 +112,7 @@ const char* page_bottom =
 "                   date + '</li>\\n';\n"
 "               var time = fields[9];\n"
 "               list.innerHTML += '<li>Time: ' +\n"
-"                   time + '</li>\\n';\n"
+"                   time + ' UTC</li>\\n';\n"
 "               var position = fields[10].split('=')[1];\n"
 "               var lat = position.split(',')[0];\n"
 "               var lon = position.split(',')[1];\n"
