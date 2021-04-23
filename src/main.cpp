@@ -12,6 +12,9 @@
 // Configs
 #define DEBUG_SERIAL Serial
 
+// Bluetooth
+#define BT_NAME		"ASHAB002"
+
 // LoRa config
 #define LORA_LEN    255
 #define SERIAL_LEN  LORA_LEN + 8 // 255 max LoRa PKT + start + end
@@ -118,7 +121,7 @@ void setup()
     }
     
     // Init BT
-    SerialBT.begin("ASHAB003"); //Bluetooth device name
+    SerialBT.begin(BT_NAME); //Bluetooth device name
     u8g2.drawStr(2, LINE8_2, "BT OK");
     u8g2.sendBuffer();
 
@@ -129,9 +132,6 @@ void setup()
     memset(serial_buf, 0, sizeof(serial_buf));
 
 
-    // BT
-    SerialBT.begin("ASHAB003"); //Bluetooth device name
-    
 
 }
 
