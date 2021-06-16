@@ -13,7 +13,7 @@
 #define DEBUG_SERIAL Serial
 
 // Bluetooth
-#define BT_NAME		"ASHAB002"
+#define BT_NAME		"ASHAB001"
 
 // LoRa config
 #define LORA_LEN    255
@@ -26,9 +26,11 @@
 // OLED GPIOs
 // Depending on boards can be CLK 5 or 15 and RST 23 or 16
 // Depending on boards can be CLK 22 or 21 and RST 23
+// for Heltec Lora, CLK DAT RST = 15, 4, 16
+// for TTGO Lora32 V1.6, CLK DAT RST = 22, 21, 23
 #define OLED_CLK    15
 #define OLED_DAT    4
-#define OLED_RST    16
+#define OLED_RST    23
 
 // LoRa GPIOs
 #define LORA_SS     18
@@ -122,7 +124,8 @@ void setup()
     
     // Init BT
     SerialBT.begin(BT_NAME); //Bluetooth device name
-    u8g2.drawStr(2, LINE8_2, "BT OK");
+    u8g2.drawStr(2, LINE8_2, "BT OK:");
+    u8g2.drawStr(54, LINE8_2, BT_NAME);
     u8g2.sendBuffer();
 
     // receiver, low power  
